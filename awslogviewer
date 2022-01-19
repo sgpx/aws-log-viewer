@@ -18,10 +18,17 @@ def execute(cmd):
 	x = json.loads(x)
 	return x
 
+def etime(x):
+	if x.get("timestamp") and type(x.get("timestamp")) == int:
+		ts = x.get("timestamp")/1000
+		s = str(datetime.datetime.fromtimestamp(ts))
+		print("time : ",s)
+
 def print_evts(e):
 	if e:
 		for i in e:
 			print("=== event ===")
+			etime(i)
 			for j in i:
 				print(j,":",i[j])
 
