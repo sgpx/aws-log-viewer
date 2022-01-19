@@ -51,10 +51,47 @@ log_stream_name = x[p].get("logStreamName")
 
 print("=======")
 cmd = f"aws logs get-log-events --log-group-name {log_group_name} --log-stream-name {log_stream_name}"
-x = execute(cmd).get("events")
+x = execute(cmd)
 print(x)
+
+sft = x.get("nextForwardToken")
+sbt = x.get("nextBackwardToken")
+
+x = x.get("events")
 
 for i in x:
 	print("\n=== event ===\n")
 	for j in i:
 		print(j,":",i[j])
+
+bt = sbt
+
+nbt,nft = None,None
+while True:
+	cmd = f"aws logs get-log-events --log-group-name {log_group_name} --log-stream-name {log_stream_name} --next-token {bt}"
+	x = execute(cmd)
+	nbt = x.get("nextBackwardToken")	
+	nft = x.get("nextForwardToken")	
+	if bt == nbt:
+		break
+	else:
+		bt = nbt
+
+ft = nft
+while True:
+	cmd = f"aws logs get-log-events --log-group-name {log_group_name} --log-stream-name {log_stream_name} --next-token {ft}"
+	x = execute(cmd)
+	nbt = x.get("nextBackwardToken")
+	nft = x.get("nextForwardToken")
+	e = x.get("events")
+	if e:
+		print("==========")
+		for i in e:
+			for j in i:
+				print(j,":",i[j])
+
+
+	if nft == ft:
+		break
+	else:
+		ft = nft
